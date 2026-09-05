@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Contabilidad">
+  <meta name="theme-color" content="#6366f1">
+  <title>Libreta Contable Familiar</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: linear-gradient(135deg, #0f1419 0%, #1a1f2e 100%); color: #e9e9ed; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.5; }
+    .container { padding: 16px 12px; max-width: 100%; margin: 0 auto; }
+    @media (min-width: 768px) { .container { padding: 40px 24px; max-width: 1600px; } }
+    .header { margin-bottom: 24px; }
+    @media (min-width: 768px) { .header { margin-bottom: 40px; } }
+    .title { margin: 0; font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    @media (min-width: 768px) { .title { font-size: 32px; } }
+    .subtitle { margin: 8px 0 0 0; color: rgba(255, 255, 255, 0.5); font-size: 12px; }
+    @media (min-width: 768px) { .subtitle { font-size: 14px; } }
+    .tab-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; overflow-x: auto; }
+    @media (min-width: 768px) { .tab-row { gap: 12px; margin-bottom: 32px; } }
+    .tab-btn { padding: 10px 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; cursor: pointer; border-radius: 8px; font-size: 12px; font-weight: 500; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
+    @media (min-width: 768px) { .tab-btn { padding: 12px 20px; font-size: 14px; } }
+    .tab-btn.active { background: #6366f1; border-color: #6366f1; }
+    .tab-btn:hover { border-color: rgba(255, 255, 255, 0.2); }
+    .tab-content { display: none; padding: 16px; background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; animation: fadeIn 0.3s ease-in; }
+    @media (min-width: 768px) { .tab-content { padding: 32px; border-radius: 16px; } }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .card { padding: 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); margin-bottom: 12px; transition: all 0.3s; }
+    @media (min-width: 768px) { .card { padding: 20px; border-radius: 12px; margin-bottom: 16px; } }
+    .card:hover { border-color: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
+    .input-item { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+    @media (min-width: 768px) { .input-item { gap: 8px; margin-bottom: 12px; } }
+    .input-item input { flex: 1; min-width: 100px; padding: 8px 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e9e9ed; border-radius: 6px; font-size: 12px; }
+    @media (min-width: 768px) { .input-item input { padding: 10px 12px; border-radius: 8px; font-size: 13px; } }
+    .input-item input:focus { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.2); outline: none; }
+    .input-item button { padding: 8px 12px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border: none; color: white; cursor: pointer; border-radius: 6px; font-size: 11px; font-weight: 500; transition: all 0.2s; white-space: nowrap; }
+    @media (min-width: 768px) { .input-item button { padding: 10px 16px; border-radius: 8px; font-size: 12px; } }
+    .input-item button:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3); }
+    .delete-btn { padding: 4px 8px !important; background: rgba(239, 68, 68, 0.15) !important; border: 1px solid rgba(239, 68, 68, 0.3) !important; color: #ef4444 !important; font-size: 10px !important; cursor: pointer !important; }
+    @media (min-width: 768px) { .delete-btn { padding: 6px 10px !important; font-size: 11px !important; } }
+    .delete-btn:hover { background: rgba(239, 68, 68, 0.25) !important; }
+    .section-title { font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255, 255, 255, 0.4); margin: 0 0 8px 0; font-weight: 600; }
+    @media (min-width: 768px) { .section-title { font-size: 11px; letter-spacing: 1.2px; margin-bottom: 12px; } }
+    .amount-text { font-size: 18px; font-weight: 600; margin: 4px 0 0 0; }
+    @media (min-width: 768px) { .amount-text { font-size: 24px; margin-top: 8px; } }
+    h2 { margin-bottom: 16px; font-size: 20px; font-weight: 700; color: white; }
+    @media (min-width: 768px) { h2 { margin-bottom: 32px; font-size: 28px; } }
+    h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin: 0 0 10px 0; font-weight: 600; color: rgba(255, 255, 255, 0.6); }
+    @media (min-width: 768px) { h3 { font-size: 13px; letter-spacing: 0.8px; margin-bottom: 16px; } }
+    .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+    @media (min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 32px; } }
+    .grid-auto { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 768px) { .grid-auto { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; } }
+    .card-green { background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%); }
+    .card-red { background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%); }
+    .card-blue { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%); }
+    .text-green { color: #22c55e; }
+    .text-red { color: #ef4444; }
+    .text-blue { color: #3b82f6; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 16px; }
+    .calendar-day { padding: 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; text-align: center; font-size: 11px; cursor: pointer; transition: all 0.2s; }
+    .calendar-day:hover { background: rgba(255, 255, 255, 0.08); }
+    .calendar-day.income { border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.1); }
+    .calendar-day.expense { border-color: rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.1); }
+    .total-box { padding: 16px; text-align: center; font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+    @media (min-width: 768px) { .total-box { padding: 32px; font-size: 40px; margin-bottom: 24px; } }
+    .alert { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 8px; margin-bottom: 16px; }
+    @media (min-width: 768px) { .alert { padding: 16px; border-radius: 12px; margin-bottom: 24px; } }
+    .alert-text { color: #ef4444; font-weight: 600; margin: 0; font-size: 12px; }
+    @media (min-width: 768px) { .alert-text { font-size: 14px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">Libreta Contable Familiar</h1>
+      <p class="subtitle">Gestiona tus ingresos, gastos y ahorros en familia</p>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="showTab('carlos')">👤 Carlos</button>
+      <button class="tab-btn" onclick="showTab('kathe')">👤 Kathe</button>
+      <button class="tab-btn" onclick="showTab('hogar')">🏠 Hogar</button>
+      <button class="tab-btn" onclick="showTab('total')">📊 Resumen</button>
+      <button class="tab-btn" onclick="showTab('ajustes')">⚙️ Ajustes</button>
+    </div>
+
+    <!-- Tab Carlos -->
+    <div id="carlos" class="tab-content active">
+      <h2>Carlos</h2>
+      <div class="card card-blue" style="padding: 24px; margin-bottom: 32px;">
+        <p class="section-title">💰 Saldo</p>
+        <p class="amount-text text-blue" id="carlosSaldo">$0</p>
+      </div>
+      <div class="grid-2">
+        <div>
+          <h3>💰 Ingresos</h3>
+          <div id="carlosIngresos"></div>
+          <div class="input-item">
+            <input type="text" id="carlos-ing-name" placeholder="Concepto">
+            <input type="number" id="carlos-ing-monto" placeholder="Monto" style="width: 120px;">
+            <button onclick="addCarlosIngreso()">+</button>
+          </div>
+          <div class="card card-green" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%); border: 1px solid rgba(34, 197, 94, 0.2);">
+            <p class="section-title">Total Ingresos</p>
+            <p class="amount-text text-green" id="carlosIngTotal">$0</p>
+          </div>
+        </div>
+        <div>
+          <h3>📉 Egresos</h3>
+          <div id="carlosEgresos"></div>
+          <div class="input-item">
+            <input type="text" id="carlos-egr-name" placeholder="Concepto">
+            <input type="number" id="carlos-egr-monto" placeholder="Monto" style="width: 120px;">
+            <button onclick="addCarlosEgreso()">+</button>
+          </div>
+          <div class="card card-red" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.08) 100%); border: 1px solid rgba(239, 68, 68, 0.2);">
+            <p class="section-title">Total Egresos</p>
+            <p class="amount-text text-red" id="carlosEgrTotal">$0</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 32px;">💳 Deudas</h3>
+      <div id="carlosDeudas"></div>
+      <div class="input-item">
+        <input type="text" id="carlos-deuda-name" placeholder="Concepto deuda">
+        <input type="number" id="carlos-deuda-monto" placeholder="Valor" style="width: 120px;">
+        <button onclick="addCarlosDeuda()">+</button>
+      </div>
+
+      <h3 style="margin-top: 32px;">📅 Calendario</h3>
+      <div class="calendar" id="carlosCalendar"></div>
+    </div>
+
+    <!-- Tab Kathe -->
+    <div id="kathe" class="tab-content">
+      <h2>Kathe</h2>
+      <div class="card card-blue" style="padding: 24px; margin-bottom: 32px;">
+        <p class="section-title">💰 Saldo</p>
+        <p class="amount-text text-blue" id="katheSaldo">$0</p>
+      </div>
+      <div class="grid-2">
+        <div>
+          <h3>💰 Ingresos</h3>
+          <div id="katheIngresos"></div>
+          <div class="input-item">
+            <input type="text" id="kathe-ing-name" placeholder="Concepto">
+            <input type="number" id="kathe-ing-monto" placeholder="Monto" style="width: 120px;">
+            <button onclick="addKatheIngreso()">+</button>
+          </div>
+          <div class="card card-green" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%); border: 1px solid rgba(34, 197, 94, 0.2);">
+            <p class="section-title">Total Ingresos</p>
+            <p class="amount-text text-green" id="katheIngTotal">$0</p>
+          </div>
+        </div>
+        <div>
+          <h3>📉 Egresos</h3>
+          <div id="katheEgresos"></div>
+          <div class="input-item">
+            <input type="text" id="kathe-egr-name" placeholder="Concepto">
+            <input type="number" id="kathe-egr-monto" placeholder="Monto" style="width: 120px;">
+            <button onclick="addKatheEgreso()">+</button>
+          </div>
+          <div class="card card-red" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.08) 100%); border: 1px solid rgba(239, 68, 68, 0.2);">
+            <p class="section-title">Total Egresos</p>
+            <p class="amount-text text-red" id="katheEgrTotal">$0</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 32px;">🎪 Servicios Local</h3>
+      <div id="katheServicios"></div>
+      <div class="input-item">
+        <input type="text" id="kathe-serv-name" placeholder="Concepto">
+        <input type="number" id="kathe-serv-monto" placeholder="Monto" style="width: 120px;">
+        <button onclick="addKatheServicio()">+</button>
+      </div>
+
+      <h3 style="margin-top: 32px;">📅 Calendario</h3>
+      <div class="calendar" id="katheCalendar"></div>
+    </div>
+
+    <!-- Tab Hogar -->
+    <div id="hogar" class="tab-content">
+      <h2>Hogar</h2>
+      <div id="hogarAlerts"></div>
+      
+      <div class="grid-auto" style="margin-bottom: 32px;">
+        <div class="card card-blue" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%); border: 1px solid rgba(59, 130, 246, 0.2); padding: 20px;">
+          <p class="section-title">🔌 Presupuesto Servicios</p>
+          <p class="amount-text text-blue" id="hogarServBudget">$305.000</p>
+          <div style="display: flex; gap: 6px; margin-top: 12px;">
+            <input type="number" id="hogar-serv-budget" placeholder="Valor" style="flex: 1; width: 80px; padding: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e9e9ed; border-radius: 6px; font-size: 12px;">
+            <button onclick="updateServBudget()" style="padding: 6px 10px; background: #3b82f6; border: none; color: white; cursor: pointer; border-radius: 6px; font-size: 11px;">OK</button>
+          </div>
+          <p style="color: #22c55e; font-size: 12px; margin: 8px 0 0 0;" id="hogarServPct">Gastado: 0%</p>
+        </div>
+        <div class="card card-green" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%); border: 1px solid rgba(34, 197, 94, 0.2); padding: 20px;">
+          <p class="section-title">🍎 Presupuesto Verduras y Comida</p>
+          <p class="amount-text text-green" id="hogarComidaBudget">$500.000</p>
+          <div style="display: flex; gap: 6px; margin-top: 12px;">
+            <input type="number" id="hogar-comida-budget" placeholder="Valor" style="flex: 1; width: 80px; padding: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e9e9ed; border-radius: 6px; font-size: 12px;">
+            <button onclick="updateComidaBudget()" style="padding: 6px 10px; background: #22c55e; border: none; color: white; cursor: pointer; border-radius: 6px; font-size: 11px;">OK</button>
+          </div>
+          <p style="color: #22c55e; font-size: 12px; margin: 8px 0 0 0;" id="hogarComidaPct">Gastado: 0%</p>
+        </div>
+        <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%); border: 1px solid rgba(245, 158, 11, 0.2); padding: 20px;">
+          <p class="section-title">🎉 Presupuesto Salidas</p>
+          <p class="amount-text" style="color: #f59e0b;" id="hogarSalidasBudget">$400.000</p>
+          <div style="display: flex; gap: 6px; margin-top: 12px;">
+            <input type="number" id="hogar-salidas-budget" placeholder="Valor" style="flex: 1; width: 80px; padding: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e9e9ed; border-radius: 6px; font-size: 12px;">
+            <button onclick="updateSalidasBudget()" style="padding: 6px 10px; background: #f59e0b; border: none; color: white; cursor: pointer; border-radius: 6px; font-size: 11px;">OK</button>
+          </div>
+          <p style="color: #22c55e; font-size: 12px; margin: 8px 0 0 0;" id="hogarSalidasPct">Gastado: 0%</p>
+        </div>
+      </div>
+
+      <div class="grid-auto">
+        <div>
+          <h3>🔌 Servicios</h3>
+          <div id="hogarServicios"></div>
+          <div class="input-item">
+            <input type="text" id="hogar-serv-name" placeholder="Concepto">
+            <input type="number" id="hogar-serv-monto" placeholder="Monto" style="width: 100px;">
+            <button onclick="addServicio()">+</button>
+          </div>
+          <div class="card card-blue" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%); border: 1px solid rgba(59, 130, 246, 0.2);">
+            <p class="section-title">Subtotal</p>
+            <p class="amount-text text-blue" id="hogarServTotal">$0</p>
+          </div>
+        </div>
+        <div>
+          <h3>🍎 Verduras y Comida</h3>
+          <div id="hogarComida"></div>
+          <div class="input-item">
+            <input type="text" id="hogar-comida-name" placeholder="Concepto">
+            <input type="number" id="hogar-comida-monto" placeholder="Monto" style="width: 100px;">
+            <button onclick="addComida()">+</button>
+          </div>
+          <div class="card card-green" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%); border: 1px solid rgba(34, 197, 94, 0.2);">
+            <p class="section-title">Subtotal</p>
+            <p class="amount-text text-green" id="hogarComidaTotal">$0</p>
+          </div>
+        </div>
+        <div>
+          <h3>🎉 Salidas Familia</h3>
+          <div id="hogarSalidas"></div>
+          <div class="input-item">
+            <input type="text" id="hogar-salida-name" placeholder="Concepto">
+            <input type="number" id="hogar-salida-monto" placeholder="Monto" style="width: 100px;">
+            <button onclick="addSalida()">+</button>
+          </div>
+          <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <p class="section-title">Subtotal</p>
+            <p class="amount-text" style="color: #f59e0b;" id="hogarSalidasTotal">$0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Total -->
+    <div id="total" class="tab-content">
+      <h2>Resumen General</h2>
+      
+      <div style="margin-bottom: 40px;">
+        <h3 style="margin-bottom: 20px;">💹 Ingresos Totales</h3>
+        <div class="card total-box card-green" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%); border: 1px solid rgba(34, 197, 94, 0.3);">
+          <p class="section-title">Ingresos Familiares</p>
+          <p style="font-size: 40px; font-weight: 700; color: #22c55e; margin: 0;" id="totalIngresos">$0</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 40px;">
+        <h3 style="margin-bottom: 20px;">📊 Gastos por Persona</h3>
+        <div class="grid-auto">
+          <div class="card" style="background: linear-gradient(135deg, rgba(147, 115, 220, 0.15) 0%, rgba(147, 115, 220, 0.08) 100%); border: 1px solid rgba(147, 115, 220, 0.2); text-align: center;">
+            <p class="section-title">👤 Gastos Carlos</p>
+            <p style="font-size: 28px; font-weight: 700; color: #9373dc; margin: 0;" id="carlosGastos">$0</p>
+          </div>
+          <div class="card" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(236, 72, 153, 0.08) 100%); border: 1px solid rgba(236, 72, 153, 0.2); text-align: center;">
+            <p class="section-title">👤 Gastos Kathe</p>
+            <p style="font-size: 28px; font-weight: 700; color: #ec4899; margin: 0;" id="katheGastos">$0</p>
+          </div>
+          <div class="card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%); border: 1px solid rgba(59, 130, 246, 0.2); text-align: center;">
+            <p class="section-title">🏠 Gastos Hogar</p>
+            <p style="font-size: 28px; font-weight: 700; color: #3b82f6; margin: 0;" id="hogarGastos">$0</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 40px;">
+        <h3 style="margin-bottom: 20px;">🎯 Resumen Financiero</h3>
+        <div class="card" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(139, 92, 246, 0.1) 100%); border: 1px solid rgba(139, 92, 246, 0.3); padding: 24px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+              <p class="section-title">Gastos Totales</p>
+              <p style="font-size: 32px; font-weight: 700; color: #ef4444; margin: 0;" id="totalGastos">$0</p>
+            </div>
+            <div style="padding: 16px; background: rgba(0, 0, 0, 0.3); border-radius: 8px;">
+              <p class="section-title" id="ahorroLabel">AHORRO OBJETIVO (10%)</p>
+              <p style="font-size: 32px; font-weight: 700; color: #22c55e; margin: 0;" id="ahorroDisplay">$0</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin-bottom: 20px;">💎 Ayuda para Otros</h3>
+        <div class="card total-box" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%); border: 1px solid rgba(6, 182, 212, 0.3);">
+          <p class="section-title">Ayuda (5%)</p>
+          <p style="font-size: 40px; font-weight: 700; color: #06b6d4; margin: 0;" id="ayudaDisplay">$0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Ajustes -->
+    <div id="ajustes" class="tab-content">
+      <h2>Ajustes y Sincronización</h2>
+      
+      <div class="grid-2">
+        <div>
+          <h3 style="margin-bottom: 20px;">📤 Exportar Datos</h3>
+          <div class="card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%); border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 16px; padding: 20px;">
+            <p style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin: 0 0 12px 0;">Guardar tu información en el dispositivo</p>
+            <button style="width: 100%; padding: 12px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none; color: white; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 500; transition: all 0.2s; margin-bottom: 8px;" onclick="downloadJSON()">💾 Descargar JSON</button>
+            <button style="width: 100%; padding: 12px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); border: none; color: white; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 500; transition: all 0.2s;" onclick="shareAirDrop()">🍎 Compartir por AirDrop</button>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin-bottom: 20px;">📥 Sincronizar Datos</h3>
+          <div class="card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%); border: 1px solid rgba(34, 197, 94, 0.2); margin-bottom: 16px; padding: 20px;">
+            <p style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin: 0 0 12px 0;">Importar datos del otro usuario</p>
+            <input type="file" id="json-upload" accept=".json" style="width: 100%; padding: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e9e9ed; border-radius: 6px; font-size: 12px; margin-bottom: 8px;">
+            <button style="width: 100%; padding: 12px; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border: none; color: white; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 500; transition: all 0.2s; margin-bottom: 8px;" onclick="importJSON()">✅ Importar JSON</button>
+            <button style="width: 100%; padding: 12px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; color: white; cursor: pointer; border-radius: 8px; font-size: 13px; font-weight: 500; transition: all 0.2s;" onclick="resetData()">🗑️ Limpiar Todo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 100%); border: 1px solid rgba(139, 92, 246, 0.2); padding: 20px;">
+        <h3 style="margin-top: 0;">📊 Estado de Sincronización</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+          <div style="padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; text-align: center;">
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 11px; margin: 0 0 4px 0;">Última sincronización</p>
+            <p style="color: white; font-size: 13px; font-weight: 600; margin: 0;" id="lastSync">Nunca</p>
+          </div>
+          <div style="padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; text-align: center;">
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 11px; margin: 0 0 4px 0;">Datos guardados</p>
+            <p style="color: white; font-size: 13px; font-weight: 600; margin: 0;" id="dataSize">0 KB</p>
+          </div>
+          <div style="padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; text-align: center;">
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 11px; margin: 0 0 4px 0;">Registros</p>
+            <p style="color: white; font-size: 13px; font-weight: 600; margin: 0;" id="recordCount">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      carlosItems: [],
+      katheItems: [],
+      katheServicios: [],
+      carlosDeudas: [],
+      hogarServicios: [],
+      hogarComida: [],
+      hogarSalidas: [],
+      hogarServBudget: 305000,
+      hogarComidaBudget: 500000,
+      hogarSalidasBudget: 400000
+    };
+
+    function formatCOP(num) {
+      return '$' + num.toLocaleString('es-CO');
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function addCarlosIngreso() {
+      const name = document.getElementById('carlos-ing-name').value;
+      const monto = parseInt(document.getElementById('carlos-ing-monto').value) || 0;
+      if (name && monto) {
+        data.carlosItems.push({ tipo: 'ingreso', concepto: name, monto, date: new Date().toISOString().split('T')[0] });
+        document.getElementById('carlos-ing-name').value = '';
+        document.getElementById('carlos-ing-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function addCarlosEgreso() {
+      const name = document.getElementById('carlos-egr-name').value;
+      const monto = parseInt(document.getElementById('carlos-egr-monto').value) || 0;
+      if (name && monto) {
+        data.carlosItems.push({ tipo: 'egreso', concepto: name, monto, date: new Date().toISOString().split('T')[0] });
+        document.getElementById('carlos-egr-name').value = '';
+        document.getElementById('carlos-egr-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function addCarlosDeuda() {
+      const name = document.getElementById('carlos-deuda-name').value;
+      const monto = parseInt(document.getElementById('carlos-deuda-monto').value) || 0;
+      if (name && monto) {
+        data.carlosDeudas.push({ concepto: name, monto, saldo: monto });
+        document.getElementById('carlos-deuda-name').value = '';
+        document.getElementById('carlos-deuda-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function deleteCarlosIngreso(idx) {
+      const ingresos = data.carlosItems.filter(i => i.tipo === 'ingreso');
+      ingresos.splice(idx, 1);
+      data.carlosItems = [...ingresos, ...data.carlosItems.filter(i => i.tipo === 'egreso')];
+      updateUI();
+    }
+
+    function deleteCarlosEgreso(idx) {
+      const egresos = data.carlosItems.filter(i => i.tipo === 'egreso');
+      egresos.splice(idx, 1);
+      data.carlosItems = [...data.carlosItems.filter(i => i.tipo === 'ingreso'), ...egresos];
+      updateUI();
+    }
+
+    function deleteCarlosDeuda(idx) {
+      data.carlosDeudas.splice(idx, 1);
+      updateUI();
+    }
+
+    function abonarDeuda(deudaIdx, inputValue) {
+      const abono = parseInt(inputValue) || 0;
+      if (abono > 0 && data.carlosDeudas[deudaIdx]) {
+        data.carlosDeudas[deudaIdx].saldo = Math.max(0, data.carlosDeudas[deudaIdx].saldo - abono);
+        updateUI();
+      }
+    }
+
+    function addKatheIngreso() {
+      const name = document.getElementById('kathe-ing-name').value;
+      const monto = parseInt(document.getElementById('kathe-ing-monto').value) || 0;
+      if (name && monto) {
+        data.katheItems.push({ tipo: 'ingreso', concepto: name, monto, date: new Date().toISOString().split('T')[0] });
+        document.getElementById('kathe-ing-name').value = '';
+        document.getElementById('kathe-ing-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function addKatheEgreso() {
+      const name = document.getElementById('kathe-egr-name').value;
+      const monto = parseInt(document.getElementById('kathe-egr-monto').value) || 0;
+      if (name && monto) {
+        data.katheItems.push({ tipo: 'egreso', concepto: name, monto, date: new Date().toISOString().split('T')[0] });
+        document.getElementById('kathe-egr-name').value = '';
+        document.getElementById('kathe-egr-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function addKatheServicio() {
+      const name = document.getElementById('kathe-serv-name').value;
+      const monto = parseInt(document.getElementById('kathe-serv-monto').value) || 0;
+      if (name && monto) {
+        data.katheServicios.push({ concepto: name, monto, date: new Date().toISOString().split('T')[0] });
+        document.getElementById('kathe-serv-name').value = '';
+        document.getElementById('kathe-serv-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function deleteKatheIngreso(idx) {
+      const ingresos = data.katheItems.filter(i => i.tipo === 'ingreso');
+      ingresos.splice(idx, 1);
+      data.katheItems = [...ingresos, ...data.katheItems.filter(i => i.tipo === 'egreso')];
+      updateUI();
+    }
+
+    function deleteKatheEgreso(idx) {
+      const egresos = data.katheItems.filter(i => i.tipo === 'egreso');
+      egresos.splice(idx, 1);
+      data.katheItems = [...data.katheItems.filter(i => i.tipo === 'ingreso'), ...egresos];
+      updateUI();
+    }
+
+    function deleteKatheServicio(idx) {
+      data.katheServicios.splice(idx, 1);
+      updateUI();
+    }
+
+    function addServicio() {
+      const name = document.getElementById('hogar-serv-name').value;
+      const monto = parseInt(document.getElementById('hogar-serv-monto').value) || 0;
+      if (name && monto) {
+        data.hogarServicios.push({ concepto: name, monto });
+        document.getElementById('hogar-serv-name').value = '';
+        document.getElementById('hogar-serv-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function deleteServicio(idx) {
+      data.hogarServicios.splice(idx, 1);
+      updateUI();
+    }
+
+    function updateServBudget() {
+      const monto = parseInt(document.getElementById('hogar-serv-budget').value) || 0;
+      if (monto > 0) {
+        data.hogarServBudget = monto;
+        document.getElementById('hogar-serv-budget').value = '';
+        updateUI();
+      }
+    }
+
+    function addComida() {
+      const name = document.getElementById('hogar-comida-name').value;
+      const monto = parseInt(document.getElementById('hogar-comida-monto').value) || 0;
+      if (name && monto) {
+        data.hogarComida.push({ concepto: name, monto });
+        document.getElementById('hogar-comida-name').value = '';
+        document.getElementById('hogar-comida-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function deleteComida(idx) {
+      data.hogarComida.splice(idx, 1);
+      updateUI();
+    }
+
+    function updateComidaBudget() {
+      const monto = parseInt(document.getElementById('hogar-comida-budget').value) || 0;
+      if (monto > 0) {
+        data.hogarComidaBudget = monto;
+        document.getElementById('hogar-comida-budget').value = '';
+        updateUI();
+      }
+    }
+
+    function addSalida() {
+      const name = document.getElementById('hogar-salida-name').value;
+      const monto = parseInt(document.getElementById('hogar-salida-monto').value) || 0;
+      if (name && monto) {
+        data.hogarSalidas.push({ concepto: name, monto });
+        document.getElementById('hogar-salida-name').value = '';
+        document.getElementById('hogar-salida-monto').value = '';
+        updateUI();
+      }
+    }
+
+    function deleteSalida(idx) {
+      data.hogarSalidas.splice(idx, 1);
+      updateUI();
+    }
+
+    function updateSalidasBudget() {
+      const monto = parseInt(document.getElementById('hogar-salidas-budget').value) || 0;
+      if (monto > 0) {
+        data.hogarSalidasBudget = monto;
+        document.getElementById('hogar-salidas-budget').value = '';
+        updateUI();
+      }
+    }
+
+    function downloadJSON() {
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `contabilidad-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      localStorage.setItem('lastSync', new Date().toISOString());
+    }
+
+    function shareAirDrop() {
+      if (navigator.share) {
+        navigator.share({ title: 'Datos Contables', text: JSON.stringify(data) }).catch(err => alert('Error: ' + err));
+      } else {
+        alert('AirDrop no disponible. Usa Descargar JSON.');
+      }
+    }
+
+    function importJSON() {
+      const file = document.getElementById('json-upload').files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const imported = JSON.parse(e.target.result);
+            data.carlosItems = [...data.carlosItems, ...imported.carlosItems];
+            data.katheItems = [...data.katheItems, ...imported.katheItems];
+            data.katheServicios = [...data.katheServicios, ...imported.katheServicios];
+            data.carlosDeudas = [...data.carlosDeudas, ...imported.carlosDeudas];
+            localStorage.setItem('lastSync', new Date().toISOString());
+            alert('✅ Datos importados sin borrar los existentes');
+            updateUI();
+          } catch (err) {
+            alert('❌ Error al importar');
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function resetData() {
+      if (confirm('⚠️ ¿Estás seguro de limpiar todos los datos?')) {
+        data.carlosItems = [];
+        data.katheItems = [];
+        data.katheServicios = [];
+        data.carlosDeudas = [];
+        data.hogarServicios = [];
+        data.hogarComida = [];
+        data.hogarSalidas = [];
+        localStorage.removeItem('lastSync');
+        alert('🗑️ Datos eliminados');
+        updateUI();
+      }
+    }
+
+    function updateUI() {
+      const carlosIngresos = data.carlosItems.filter(i => i.tipo === 'ingreso');
+      const carlosEgresos = data.carlosItems.filter(i => i.tipo === 'egreso');
+      const katheIngresos = data.katheItems.filter(i => i.tipo === 'ingreso');
+      const katheEgresos = data.katheItems.filter(i => i.tipo === 'egreso');
+
+      const carlosIngTotal = carlosIngresos.reduce((sum, i) => sum + i.monto, 0);
+      const carlosEgrTotal = carlosEgresos.reduce((sum, i) => sum + i.monto, 0);
+      const katheIngTotal = katheIngresos.reduce((sum, i) => sum + i.monto, 0);
+      const katheEgrTotal = katheEgresos.reduce((sum, i) => sum + i.monto, 0) + data.katheServicios.reduce((sum, i) => sum + i.monto, 0);
+
+      document.getElementById('carlosIngTotal').textContent = formatCOP(carlosIngTotal);
+      document.getElementById('carlosEgrTotal').textContent = formatCOP(carlosEgrTotal);
+      document.getElementById('carlosSaldo').textContent = formatCOP(carlosIngTotal - carlosEgrTotal);
+      document.getElementById('katheIngTotal').textContent = formatCOP(katheIngTotal);
+      document.getElementById('katheEgrTotal').textContent = formatCOP(katheEgrTotal);
+      document.getElementById('katheSaldo').textContent = formatCOP(katheIngTotal - katheEgrTotal);
+
+      // Carlos Ingresos
+      document.getElementById('carlosIngresos').innerHTML = carlosIngresos.map((item, idx) => `
+        <div class="card card-green" style="display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text text-green" style="font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteCarlosIngreso(${idx})">×</button>
+        </div>
+      `).join('');
+
+      // Carlos Egresos
+      document.getElementById('carlosEgresos').innerHTML = carlosEgresos.map((item, idx) => `
+        <div class="card card-red" style="display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text text-red" style="font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteCarlosEgreso(${idx})">×</button>
+        </div>
+      `).join('');
+
+      // Carlos Deudas
+      document.getElementById('carlosDeudas').innerHTML = data.carlosDeudas.map((debt, idx) => `
+        <div class="card" style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.2); display: flex; justify-content: space-between; align-items: flex-start;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${debt.concepto}</p><p class="amount-text" style="color: #ffc107; font-size: 16px;">${formatCOP(debt.saldo)}</p></div>
+          <div style="display: flex; gap: 6px;">
+            <input type="number" placeholder="Abono" style="width: 70px; padding: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e9e9ed; border-radius: 6px; font-size: 11px;" id="abono-${idx}">
+            <button style="padding: 6px 10px; background: #ffc107; color: black; border: none; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer;" onclick="abonarDeuda(${idx}, document.getElementById('abono-${idx}').value)">Abonar</button>
+            <button class="delete-btn" onclick="deleteCarlosDeuda(${idx})">×</button>
+          </div>
+        </div>
+      `).join('');
+
+      // Kathe Ingresos
+      document.getElementById('katheIngresos').innerHTML = katheIngresos.map((item, idx) => `
+        <div class="card card-green" style="display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text text-green" style="font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteKatheIngreso(${idx})">×</button>
+        </div>
+      `).join('');
+
+      // Kathe Egresos
+      document.getElementById('katheEgresos').innerHTML = katheEgresos.map((item, idx) => `
+        <div class="card card-red" style="display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text text-red" style="font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteKatheEgreso(${idx})">×</button>
+        </div>
+      `).join('');
+
+      // Kathe Servicios
+      document.getElementById('katheServicios').innerHTML = data.katheServicios.map((item, idx) => `
+        <div class="card" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%); display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text" style="color: #a855f7; font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteKatheServicio(${idx})">×</button>
+        </div>
+      `).join('');
+
+      // Hogar Servicios
+      const hogarServTotal = data.hogarServicios.reduce((sum, i) => sum + i.monto, 0);
+      document.getElementById('hogarServicios').innerHTML = data.hogarServicios.map((item, idx) => `
+        <div class="card card-blue" style="display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text text-blue" style="font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteServicio(${idx})">×</button>
+        </div>
+      `).join('');
+      document.getElementById('hogarServTotal').textContent = formatCOP(hogarServTotal);
+      const hogarServPct = Math.round((hogarServTotal / data.hogarServBudget) * 100);
+      document.getElementById('hogarServPct').textContent = `Gastado: ${hogarServPct}%`;
+      document.getElementById('hogarServPct').style.color = hogarServPct > 100 ? '#ef4444' : '#22c55e';
+
+      // Hogar Comida
+      const hogarComidaTotal = data.hogarComida.reduce((sum, i) => sum + i.monto, 0);
+      document.getElementById('hogarComida').innerHTML = data.hogarComida.map((item, idx) => `
+        <div class="card card-green" style="display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text text-green" style="font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteComida(${idx})">×</button>
+        </div>
+      `).join('');
+      document.getElementById('hogarComidaTotal').textContent = formatCOP(hogarComidaTotal);
+      const hogarComidaPct = Math.round((hogarComidaTotal / data.hogarComidaBudget) * 100);
+      document.getElementById('hogarComidaPct').textContent = `Gastado: ${hogarComidaPct}%`;
+      document.getElementById('hogarComidaPct').style.color = hogarComidaPct > 100 ? '#ef4444' : '#22c55e';
+
+      // Hogar Salidas
+      const hogarSalidasTotal = data.hogarSalidas.reduce((sum, i) => sum + i.monto, 0);
+      document.getElementById('hogarSalidas').innerHTML = data.hogarSalidas.map((item, idx) => `
+        <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%); display: flex; justify-content: space-between; align-items: center;">
+          <div><p style="color: rgba(255, 255, 255, 0.6); font-size: 12px; margin: 0;">${item.concepto}</p><p class="amount-text" style="color: #f59e0b; font-size: 16px;">${formatCOP(item.monto)}</p></div>
+          <button class="delete-btn" onclick="deleteSalida(${idx})">×</button>
+        </div>
+      `).join('');
+      document.getElementById('hogarSalidasTotal').textContent = formatCOP(hogarSalidasTotal);
+      const hogarSalidasPct = Math.round((hogarSalidasTotal / data.hogarSalidasBudget) * 100);
+      document.getElementById('hogarSalidasPct').textContent = `Gastado: ${hogarSalidasPct}%`;
+      document.getElementById('hogarSalidasPct').style.color = hogarSalidasPct > 100 ? '#ef4444' : '#22c55e';
+
+      // Totales
+      const totalIngresos = carlosIngTotal + katheIngTotal;
+      const totalGastos = carlosEgrTotal + katheEgrTotal + hogarServTotal + hogarComidaTotal + hogarSalidasTotal;
+      const ahorro = totalIngresos * 0.10;
+      const ayuda = totalIngresos * 0.05;
+
+      document.getElementById('totalIngresos').textContent = formatCOP(totalIngresos);
+      document.getElementById('totalGastos').textContent = formatCOP(totalGastos);
+      document.getElementById('ahorroDisplay').textContent = formatCOP(ahorro);
+      document.getElementById('ayudaDisplay').textContent = formatCOP(ayuda);
+      document.getElementById('carlosGastos').textContent = formatCOP(carlosEgrTotal);
+      document.getElementById('katheGastos').textContent = formatCOP(katheEgrTotal);
+      document.getElementById('hogarGastos').textContent = formatCOP(hogarServTotal + hogarComidaTotal + hogarSalidasTotal);
+
+      // Sincronización
+      document.getElementById('lastSync').textContent = localStorage.getItem('lastSync') ? new Date(localStorage.getItem('lastSync')).toLocaleDateString('es-CO') : 'Nunca';
+      document.getElementById('dataSize').textContent = ((JSON.stringify(data).length / 1024).toFixed(2)) + ' KB';
+      document.getElementById('recordCount').textContent = (data.carlosItems.length + data.katheItems.length + data.hogarServicios.length + data.hogarComida.length + data.hogarSalidas.length);
+
+      localStorage.setItem('contabilidad', JSON.stringify(data));
+    }
+
+    // Cargar datos al iniciar
+    const saved = localStorage.getItem('contabilidad');
+    if (saved) {
+      Object.assign(data, JSON.parse(saved));
+    }
+
+    updateUI();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(err => console.log('SW:', err));
+      });
+    }
+  </script>
+</body>
+</html>
